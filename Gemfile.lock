@@ -21,6 +21,7 @@ GEM
     tilt (2.0.10)
 
 PLATFORMS
+  x64_64-linux
   x86_64-darwin-21
 
 DEPENDENCIES
