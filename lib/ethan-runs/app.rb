@@ -8,5 +8,8 @@ module EthanRuns
     get '/' do
       'Hello Ethan!'
     end
+    get '/:name' do |name|
+      "Hello #{name}!"
+    end
   end
 end
