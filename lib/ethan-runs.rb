@@ -1,1 +1,2 @@
-require 'ethan-runs/app'
+require 'app/app'
+require 'models/activity'

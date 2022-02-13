@@ -3,9 +3,6 @@
 require 'active_record'
 require "sinatra/base"
 require "sinatra/activerecord"
-require_relative "../models/activity"
-
-# ActiveRecord::Base.establish_connection(db_configuration["development"])
 
 module EthanRuns
   class App < Sinatra::Base
