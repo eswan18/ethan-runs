@@ -17,7 +17,7 @@ module EthanRuns
       "Hello #{name}!"
     end
     get '/activities' do
-      Activity.all
+      "#{Models::Activity.count}"
     end
   end
 end
