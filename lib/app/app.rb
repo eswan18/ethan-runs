@@ -13,8 +13,14 @@ module EthanRuns
     get '/hello/:name' do |name|
       "Hello #{name}!"
     end
-    get '/activities' do
+    get '/api/activities/count' do
       "#{Models::Activity.count}"
+    end
+    post '/api/activities' do
+      activity = Models::Activity.new
+      activity.from_json(request.body.read)
+      activity.save
+      201
     end
   end
 end
