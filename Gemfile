@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
-gem 'rack', '~> 2.0.1'
+gem 'rack'
+gem 'sinatra', '~> 2.1'
 gem 'thin'
-gem 'sinatra'
