@@ -4,6 +4,7 @@ require 'active_record'
 require "sinatra/base"
 require "sinatra/activerecord"
 
+
 module EthanRuns
   class App < Sinatra::Base
     register Sinatra::ActiveRecordExtension
@@ -17,10 +18,15 @@ module EthanRuns
       "#{Models::Activity.count}"
     end
     post '/api/activities' do
-      activity = Models::Activity.new
-      activity.from_json(request.body.read)
-      activity.save
-      201
+      token = request.env['HTTP_AUTHORIZATION']
+      if token != $AuthToken
+        return 401
+      else
+        activity = Models::Activity.new
+        activity.from_json(request.body.read)
+        activity.save
+        201
+      end
     end
   end
 end
