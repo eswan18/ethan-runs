@@ -17,10 +17,18 @@ module EthanRuns
     get '/api/activities/count' do
       "#{Models::Activity.count}"
     end
+    get '/api/activities' do
+      token = request.env['HTTP_AUTHORIZATION']
+      if token != $AuthToken
+        401
+      else
+        [200, Models::Activity.all.to_json]
+      end
+    end
     post '/api/activities' do
       token = request.env['HTTP_AUTHORIZATION']
       if token != $AuthToken
-        return 401
+        401
       else
         activity = Models::Activity.new
         activity.from_json(request.body.read)
