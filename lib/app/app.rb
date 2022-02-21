@@ -30,9 +30,10 @@ module EthanRuns
       if token != $AuthToken
         401
       else
-        activity = Models::Activity.new
-        activity.from_json(request.body.read)
-        activity.save
+        data = JSON.parse request.body.read
+        # Fix column names to match table
+        data.transform_keys! { |key| Common::normalize_column_name(key) }
+        activity = Models::Activity.create(data)
         201
       end
     end
