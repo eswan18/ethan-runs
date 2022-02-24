@@ -18,24 +18,27 @@ module EthanRuns
       "#{Models::Activity.count}"
     end
     get '/api/activities' do
+      # Get activities, optionally filtering by type.
       token = request.env['HTTP_AUTHORIZATION']
       if token != $AuthToken
-        401
-      else
-        [200, Models::Activity.all.to_json]
+        return 401
       end
+      acts = Models::Activity.all
+      if activity_type = params['activity_type']
+        acts = acts.where(activity_type: params['activity_type'])
+      end
+      [200, acts.to_json]
     end
     post '/api/activities' do
       token = request.env['HTTP_AUTHORIZATION']
       if token != $AuthToken
         401
-      else
-        data = JSON.parse request.body.read
-        # Fix column names to match table
-        data.transform_keys! { |key| Common::normalize_column_name(key) }
-        activity = Models::Activity.create(data)
-        201
       end
+      data = JSON.parse request.body.read
+      # Fix column names to match table
+      data.transform_keys! { |key| Common::normalize_column_name(key) }
+      activity = Models::Activity.create(data)
+      201
     end
   end
 end
