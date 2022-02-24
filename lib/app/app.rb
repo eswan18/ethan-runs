@@ -27,6 +27,12 @@ module EthanRuns
       if activity_type = params['activity_type']
         acts = acts.where(activity_type: params['activity_type'])
       end
+      if start_date = params['start_date']
+        acts = acts.where('workout_date >= ?', start_date)
+      end
+      if end_date = params['end_date']
+        acts = acts.where('workout_date <= ?', end_date)
+      end
       [200, acts.to_json]
     end
     post '/api/activities' do
