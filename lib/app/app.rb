@@ -3,20 +3,31 @@
 require 'active_record'
 require "sinatra/base"
 require "sinatra/activerecord"
+require "sinatra/cors"
 
 
 module EthanRuns
   class App < Sinatra::Base
     register Sinatra::ActiveRecordExtension
+    register Sinatra::Cors
+
+    set :allow_origin, "http://localhost:1337"
+    set :allow_methods, "GET,HEAD,POST"
+    set :allow_headers, "content-type,if-modified-since"
+    set :expose_headers, "location,link"
+
     get '/' do
       'Hello Ethan!'
     end
+
     get '/hello/:name' do |name|
       "Hello #{name}!"
     end
+
     get '/api/activities/count' do
       "#{Models::Activity.count}"
     end
+
     get '/api/activities' do
       # Get activities, optionally filtering by type.
       token = request.env['HTTP_AUTHORIZATION']

@@ -33,6 +33,7 @@ GEM
     sinatra-activerecord (2.0.25)
       activerecord (>= 4.1)
       sinatra (>= 1.0)
+    sinatra-cors (1.2.0)
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -51,6 +52,7 @@ DEPENDENCIES
   rake
   sinatra (~> 2.1)
   sinatra-activerecord
+  sinatra-cors
   thin
 
 RUBY VERSION
