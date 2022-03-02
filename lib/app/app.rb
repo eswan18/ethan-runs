@@ -4,6 +4,7 @@ require 'active_record'
 require "sinatra/base"
 require "sinatra/activerecord"
 require "sinatra/cors"
+require_relative "./auth.rb"
 
 
 module EthanRuns
@@ -15,6 +16,19 @@ module EthanRuns
     set :allow_methods, "GET,HEAD,POST"
     set :allow_headers, "content-type,if-modified-since"
     set :expose_headers, "location,link"
+
+    before do
+      begin
+        if request.body.read(1)
+          request.body.rewind
+          @request_payload = JSON.parse request.body.read, { symbolize_names: true }
+        end
+      rescue JSON::ParserError => e
+        request.body.rewind
+        puts "The body #{request.body.read} was not JSON"
+      end
+    end
+
 
     get '/' do
       'Hello Ethan!'
