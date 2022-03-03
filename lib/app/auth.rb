@@ -16,6 +16,12 @@ module EthanRuns
       username = params[:username]
       password = params[:password]
       pw_hash = auth_hash(username: username, password: password)
+      user = Models::User.where(username: username).first
+      if pw_hash == user[:pw_hash]
+        a = Models::AuthToken.new
+      else
+        return 401, "Incorrect username/password"
+      end
     end
   end
 end

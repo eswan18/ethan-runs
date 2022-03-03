@@ -1,3 +1,3 @@
 require 'app/app'
-require 'models/activity'
+require 'models'
 require 'common'
