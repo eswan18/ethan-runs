@@ -1,6 +1,10 @@
 # Ethan Runs
 
-For local development, you may need to create a local postgres database and set the following environment variable so the app knows how to connect to it:
+Install it:
+1. Make a virtual env
+2. `make install`
+
+Run it:
 ```bash
-export DATABASE_URL=postgres://$(whoami)
+make serve
 ```
