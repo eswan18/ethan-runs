@@ -41,5 +41,5 @@ async def get_activities(
 ) -> list[Activity]:
     activities = db.query(models.Activity)
     if activity_type is not None:
-        activities = activities.filter(models.Activity.activity_type == activity_type)
+        activities = activities.filter_by(activity_type=activity_type)
     return activities.all()
