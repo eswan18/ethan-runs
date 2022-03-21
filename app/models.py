@@ -38,6 +38,6 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(String, primary_key=True)
-    username = Column(String)
-    email = Column(String)
+    username = Column(String, unique=True)
+    email = Column(String, unique=True)
     pw_hash = Column(String)

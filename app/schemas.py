@@ -26,3 +26,18 @@ class Activity(ActivityBase):
 
     class Config:
         orm_mode = True
+
+class UserBase(BaseModel):
+    username: str
+    email: str
+
+class UserCreate(UserBase):
+    pw_hash: str
+
+class User(UserBase):
+
+    class Config:
+        orm_mode = True
+
+class UserInDB(UserBase):
+    hashed_pw: str
