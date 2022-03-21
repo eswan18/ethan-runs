@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -37,9 +39,20 @@ async def activity_count(db: Session = Depends(get_db)):
 @app.get('/activity', response_model=list[Activity])
 async def get_activities(
     activity_type: str | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     db: Session = Depends(get_db)
 ) -> list[Activity]:
     activities = db.query(models.Activity)
-    if activity_type is not None:
+    if activity_type:
         activities = activities.filter_by(activity_type=activity_type)
+    if start_date:
+        activities = activities.filter(models.Activity.workout_date > start_date)
+    if end_date:
+        activities = activities.filter(models.Activity.workout_date < end_date)
     return activities.all()
+
+@app.post('/activity')
+async def create_activity(
+):
+    return 8
