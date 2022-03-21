@@ -1,5 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+
+from .database import engine, get_db
+from . import models
+
+models.Base.metadata.create_all(bind=engine)
 
 ORIGINS = [
     "http://localhost",
@@ -22,3 +28,7 @@ async def hello():
 @app.get('/hello/{name}')
 async def hello_name(name: str):
     return f'Hello {name}'
+
+@app.get('/activity/count')
+async def activity_count(db: Session = Depends(get_db)):
+    return db.query(models.Activity).count()
