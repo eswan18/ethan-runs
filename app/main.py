@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
+from .schemas import Activity
 from . import models
 
 models.Base.metadata.create_all(bind=engine)
@@ -32,3 +33,13 @@ async def hello_name(name: str):
 @app.get('/activity/count')
 async def activity_count(db: Session = Depends(get_db)):
     return db.query(models.Activity).count()
+
+@app.get('/activity', response_model=list[Activity])
+async def get_activities(
+    activity_type: str | None = None,
+    db: Session = Depends(get_db)
+) -> list[Activity]:
+    activities = db.query(models.Activity)
+    if activity_type is not None:
+        activities = activities.filter(models.Activity.activity_type == activity_type)
+    return activities.all()
