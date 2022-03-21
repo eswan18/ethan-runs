@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
-from .schemas import Activity
+from .schemas import Activity, ActivityCreate
 from . import models
 
 models.Base.metadata.create_all(bind=engine)
@@ -44,6 +44,8 @@ async def get_activities(
     db: Session = Depends(get_db)
 ) -> list[Activity]:
     activities = db.query(models.Activity)
+    # TODO: Some validating that there are no query params except those used
+    # in filters below.
     if activity_type:
         activities = activities.filter_by(activity_type=activity_type)
     if start_date:
@@ -53,6 +55,9 @@ async def get_activities(
     return activities.all()
 
 @app.post('/activity')
-async def create_activity(
-):
-    return 8
+async def create_activity(activity: ActivityCreate):
+    db_activity = models.Activity(**activity)
+    db.add(db_activity)
+    db.commit()
+    db.refresh(db_activity)
+    return db_activity
