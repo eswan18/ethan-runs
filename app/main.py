@@ -6,9 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
-from .schemas import Activity, ActivityCreate, User
-from .auth import get_current_user, authenticate_user, verify_pw, hash_pw, oauth2_scheme
-from . import models
+from .auth import hash_pw, get_current_user, authenticate_user, verify_pw, oauth2_scheme
+from . import schemas, models
 
 ORIGINS = [
     "http://localhost",
@@ -26,19 +25,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/')
-async def hello():
-    return 'Hello Ethan!'
+@app.get('/user', response_model=list[schemas.UserOut])
+async def get_users(db: Session = Depends(get_db)) -> list[schemas.UserOut]:
+    return db.query(models.User).all()
 
-@app.get('/hello/{name}')
-async def hello_name(name: str):
-    return f'Hello {name}'
+@app.post('/user', response_model=schemas.UserOut)
+async def create_user(
+    user: schemas.UserIn,
+    db: Session = Depends(get_db)
+) -> schemas.UserOut:
+    pw_hash = hash_pw(user.username, user.password)
+    user_model = models.User(
+        username=user.username,
+        email=user.email,
+        pw_hash=pw_hash
+    )
+    db.add(user_model)
+    db.commit()
+    db.refresh(user_model)
+    return user_model
 
 @app.get('/activity/count')
 async def activity_count(db: Session = Depends(get_db)):
     return db.query(models.Activity).count()
 
-@app.get('/activity', response_model=list[Activity])
+@app.get('/activity', response_model=list[schemas.Activity])
 async def get_activities(
     activity_type: str | None = None,
     start_date: date | None = None,
@@ -46,7 +57,7 @@ async def get_activities(
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme),
     current_user = Depends(get_current_user),
-) -> list[Activity]:
+) -> list[schemas.Activity]:
     activities = db.query(models.Activity)
     # TODO: Some validating that there are no query params except those used
     # in filters below.
@@ -60,7 +71,7 @@ async def get_activities(
 
 @app.post('/activity')
 async def create_activity(
-    activity: ActivityCreate,
+    activity: schemas.ActivityCreate,
     token: str = Depends(oauth2_scheme),
     current_user = Depends(get_current_user),
 ):

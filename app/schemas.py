@@ -31,13 +31,14 @@ class UserBase(BaseModel):
     username: str
     email: str
 
-class UserCreate(UserBase):
-    pw_hash: str
+class UserIn(UserBase):
+    password: str
 
-class User(UserBase):
+class UserOut(UserBase):
 
     class Config:
         orm_mode = True
 
 class UserInDB(UserBase):
-    hashed_pw: str
+    id: str
+    pw_hash: str

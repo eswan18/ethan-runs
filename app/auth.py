@@ -16,20 +16,24 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_user(db: Session, username: str) -> schemas.User:
+def get_user(db: Session, username: str) -> schemas.UserOut:
     user = Session.query(models.User).filter_by(username=username).first()
     return schemas.UserInDB(**user)
 
-def verify_pw(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_pw(
+    username: str,
+    plain_password: str,
+    hashed_password: str
+) -> bool:
+    return pwd_context.verify(username + plain_password, hashed_password)
 
-def hash_pw(password):
-    return pwd_context.hash(password)
+def hash_pw(username: str, password: str):
+    return pwd_context.hash(username + password)
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
-) -> schemas.User:
+) -> schemas.UserOut:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -52,10 +56,10 @@ def authenticate_user(
     username: str,
     password: str,
     db: Session=Depends(get_db)
-) -> schemas.User | None:
+) -> schemas.UserOut | None:
     user = get_user(db, username)
     if not user:
         return None
-    if not verify_pw(password, user.hashed_password):
+    if not verify_pw(username, password, user.hashed_password):
         return None
     return user
