@@ -43,7 +43,7 @@ async def get_my_user(
 async def create_user(
     user: schemas.UserIn,
     db: Session = Depends(get_db)
-) -> schemas.UserOut:
+):
     pw_hash = hash_pw(user.username, user.password)
     user_model = models.User(
         username=user.username,
@@ -56,12 +56,12 @@ async def create_user(
     return user_model
 
 
-@app.get('/activity/count')
-async def activity_count(db: Session = Depends(get_db)):
+@app.get('/activity/count', response_model=int)
+async def activity_count(db: Session = Depends(get_db)) -> int:
     return db.query(models.Activity).count()
 
 
-@app.get('/activity', response_model=list[schemas.Activity])
+@app.get('/activity', response_model=list[schemas.ActivityOut])
 async def get_activities(
     activity_type: str | None = None,
     start_date: date | None = None,
@@ -69,7 +69,7 @@ async def get_activities(
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme),
     current_user: schemas.UserOut = Depends(get_current_user),
-) -> list[schemas.Activity]:
+) -> list[schemas.ActivityOut]:
     activities = db.query(models.Activity)
     # TODO: Some validating that there are no query params except those used
     # in filters below.
@@ -84,12 +84,12 @@ async def get_activities(
 
 @app.post('/activity')
 async def create_activity(
-    activity: schemas.ActivityCreate,
+    activity: schemas.ActivityIn,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
     current_user: schemas.UserOut = Depends(get_current_user),
 ):
-    db_activity = models.Activity(**activity)
+    db_activity = models.Activity(**activity.dict())
     db.add(db_activity)
     db.commit()
     db.refresh(db_activity)

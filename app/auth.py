@@ -21,9 +21,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_user(
     db: Session,
     username: str,
-) -> schemas.UserInDB:
+) -> models.User:
     user = db.query(models.User).filter_by(username=username).first()
-    return schemas.UserInDB.from_orm(user)
+    if user is None:
+        raise ValueError(f'Username {username} does not exist')
+    return user
 
 
 def verify_pw(
@@ -44,7 +46,7 @@ def hash_pw(
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
-) -> schemas.UserOut:
+) -> models.User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -68,7 +70,7 @@ def authenticate_user(
     username: str,
     password: str,
     db: Session = Depends(get_db)
-) -> schemas.UserOut | None:
+) -> models.User | None:
     user = get_user(db, username)
     if not user:
         return None

@@ -22,11 +22,11 @@ class ActivityBase(BaseModel):
     link: str
 
 
-class ActivityCreate(ActivityBase):
+class ActivityIn(ActivityBase):
     ...
 
 
-class Activity(ActivityBase):
+class ActivityOut(ActivityBase):
 
     class Config:
         orm_mode = True

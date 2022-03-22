@@ -31,6 +31,6 @@ class User(Base):
     __tablename__ = 'users'
 
     id: UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = Column(String, unique=True)
-    email = Column(String, unique=True)
-    pw_hash = Column(String)
+    username: str = Column(String, unique=True, nullable=False)
+    email: str = Column(String, unique=True, nullable=False)
+    pw_hash: str = Column(String, nullable=False)
