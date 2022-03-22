@@ -4,3 +4,4 @@ config/database.yml
 secrets.ini
 *.egg-info/
 .python-version
+.mypy_cache/
