@@ -17,12 +17,14 @@ ACCESS_TOKEN_EXPIRATION_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def get_user(
     db: Session,
     username: str
 ) -> schemas.UserOut:
     user = db.query(models.User).filter_by(username=username).first()
     return schemas.UserInDB.from_orm(user)
+
 
 def verify_pw(
     username: str,
@@ -31,11 +33,13 @@ def verify_pw(
 ) -> bool:
     return pwd_context.verify(username.lower() + plain_password, hashed_password)
 
+
 def hash_pw(
     username: str,
     password: str
 ) -> str:
     return pwd_context.hash(username.lower() + password)
+
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -59,6 +63,7 @@ async def get_current_user(
         raise credentials_exception
     return user
 
+
 def authenticate_user(
     username: str,
     password: str,
@@ -71,6 +76,7 @@ def authenticate_user(
         return None
     return user
 
+
 def create_token_payload(
     username: str,
     form_data: OAuth2PasswordRequestForm,
@@ -81,6 +87,7 @@ def create_token_payload(
         data={"sub": username}, expiration_delta=expiration_delta
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 def create_access_token(
     data: dict[str, str],

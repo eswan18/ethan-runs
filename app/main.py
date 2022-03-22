@@ -6,7 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
-from .auth import hash_pw, get_current_user, authenticate_user, verify_pw, oauth2_scheme, create_token_payload
+from .auth import get_current_user, authenticate_user, oauth2_scheme
+from .auth import hash_pw, create_token_payload
 from . import schemas, models
 
 ORIGINS = [
@@ -25,15 +26,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get('/user', response_model=list[schemas.UserOut])
 async def get_users(db: Session = Depends(get_db)) -> list[schemas.UserOut]:
     return db.query(models.User).all()
 
+
 @app.get('/user/me', response_model=schemas.UserOut)
 async def get_my_user(
-    current_user = Depends(get_current_user),
+        current_user: schemas.UserOut = Depends(get_current_user),
 ) -> schemas.UserOut:
     return current_user
+
 
 @app.post('/user', response_model=schemas.UserOut)
 async def create_user(
@@ -51,9 +55,11 @@ async def create_user(
     db.refresh(user_model)
     return user_model
 
+
 @app.get('/activity/count')
 async def activity_count(db: Session = Depends(get_db)):
     return db.query(models.Activity).count()
+
 
 @app.get('/activity', response_model=list[schemas.Activity])
 async def get_activities(
@@ -62,7 +68,7 @@ async def get_activities(
     end_date: date | None = None,
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme),
-    current_user = Depends(get_current_user),
+    current_user: schemas.UserOut = Depends(get_current_user),
 ) -> list[schemas.Activity]:
     activities = db.query(models.Activity)
     # TODO: Some validating that there are no query params except those used
@@ -75,17 +81,20 @@ async def get_activities(
         activities = activities.filter(models.Activity.workout_date < end_date)
     return activities.all()
 
+
 @app.post('/activity')
 async def create_activity(
     activity: schemas.ActivityCreate,
     token: str = Depends(oauth2_scheme),
-    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    current_user: schemas.UserOut = Depends(get_current_user),
 ):
     db_activity = models.Activity(**activity)
     db.add(db_activity)
     db.commit()
     db.refresh(db_activity)
     return db_activity
+
 
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(

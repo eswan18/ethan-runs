@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+
 class ActivityBase(BaseModel):
     date_submitted: date
     workout_date: date
@@ -20,25 +21,31 @@ class ActivityBase(BaseModel):
     source: str | None
     link: str
 
+
 class ActivityCreate(ActivityBase):
     ...
+
 
 class Activity(ActivityBase):
 
     class Config:
         orm_mode = True
 
+
 class UserBase(BaseModel):
     username: str
     email: str
 
+
 class UserIn(UserBase):
     password: str
+
 
 class UserOut(UserBase):
 
     class Config:
         orm_mode = True
+
 
 class UserInDB(UserBase):
     id: UUID
@@ -47,9 +54,11 @@ class UserInDB(UserBase):
     class Config:
         orm_mode = True
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 class TokenData(BaseModel):
     username: str | None = None

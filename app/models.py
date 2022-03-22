@@ -4,7 +4,8 @@ from sqlalchemy import Column, ForeignKey, Integer, Float, String, Date, DateTim
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
-from .database import Base, get_db
+from .database import Base
+
 
 class Activity(Base):
     __tablename__ = 'activity_fact'
