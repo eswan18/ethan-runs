@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from .database import get_db
-from . import models, schemas
+from . import models
 
 SECRET_KEY = os.environ['APP_SECRET']
 ALGORITHM = 'HS256'
