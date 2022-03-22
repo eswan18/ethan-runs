@@ -1,7 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, ForeignKey, Integer, Float, String, Date, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Float, String, Date
 from sqlalchemy.dialects.postgresql import UUID
 
 from .database import Base
@@ -28,20 +27,10 @@ class Activity(Base):
     link = Column(String)
 
 
-class AuthToken(Base):
-    __tablename__ = 'auth_tokens'
-
-    token = Column(String, primary_key=True)
-    expiration = Column(DateTime)
-    user_id = Column(Integer, ForeignKey('users.id'))
-
-    user = relationship('User')
-
-
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = Column(String, unique=True)
     email = Column(String, unique=True)
     pw_hash = Column(String)

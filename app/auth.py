@@ -20,8 +20,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_user(
     db: Session,
-    username: str
-) -> schemas.UserOut:
+    username: str,
+) -> schemas.UserInDB:
     user = db.query(models.User).filter_by(username=username).first()
     return schemas.UserInDB.from_orm(user)
 
@@ -58,7 +58,7 @@ async def get_current_user(
         token_data = schemas.TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(db, username=token_data.username)
+    user = get_user(db, username=username)
     if user is None:
         raise credentials_exception
     return user
@@ -93,8 +93,7 @@ def create_access_token(
     data: dict[str, str],
     expiration_delta: timedelta,
 ) -> str:
-    to_encode = data.copy()
     expire_time = datetime.utcnow() + expiration_delta
-    to_encode.update({"exp": expire_time})
+    to_encode = data | {'exp': expire_time}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
