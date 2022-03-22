@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -40,5 +41,8 @@ class UserOut(UserBase):
         orm_mode = True
 
 class UserInDB(UserBase):
-    id: str
+    id: UUID
     pw_hash: str
+
+    class Config:
+        orm_mode = True

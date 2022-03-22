@@ -1,7 +1,8 @@
 import os
+from datetime import timedelta, datetime
 
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -11,24 +12,30 @@ from . import models, schemas
 
 SECRET_KEY = os.environ['APP_SECRET']
 ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRATION_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_user(db: Session, username: str) -> schemas.UserOut:
-    user = Session.query(models.User).filter_by(username=username).first()
-    return schemas.UserInDB(**user)
+def get_user(
+    db: Session,
+    username: str
+) -> schemas.UserOut:
+    user = db.query(models.User).filter_by(username=username).first()
+    return schemas.UserInDB.from_orm(user)
 
 def verify_pw(
     username: str,
     plain_password: str,
     hashed_password: str
 ) -> bool:
-    return pwd_context.verify(username + plain_password, hashed_password)
+    return pwd_context.verify(username.lower() + plain_password, hashed_password)
 
-def hash_pw(username: str, password: str):
-    return pwd_context.hash(username + password)
+def hash_pw(
+    username: str,
+    password: str
+) -> str:
+    return pwd_context.hash(username.lower() + password)
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -55,11 +62,32 @@ async def get_current_user(
 def authenticate_user(
     username: str,
     password: str,
-    db: Session=Depends(get_db)
+    db: Session = Depends(get_db)
 ) -> schemas.UserOut | None:
     user = get_user(db, username)
     if not user:
         return None
-    if not verify_pw(username, password, user.hashed_password):
+    if not verify_pw(username, password, user.pw_hash):
         return None
     return user
+
+def create_token_payload(
+    username: str,
+    form_data: OAuth2PasswordRequestForm,
+    db: Session,
+    expiration_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRATION_MINUTES),
+) -> dict[str, str]:
+    access_token = create_access_token(
+        data={"sub": username}, expiration_delta=expiration_delta
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+def create_access_token(
+    data: dict[str, str],
+    expiration_delta: timedelta,
+) -> str:
+    to_encode = data.copy()
+    expire_time = datetime.utcnow() + expiration_delta
+    to_encode.update({"exp": expire_time})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
