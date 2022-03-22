@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -28,6 +28,12 @@ app.add_middleware(
 @app.get('/user', response_model=list[schemas.UserOut])
 async def get_users(db: Session = Depends(get_db)) -> list[schemas.UserOut]:
     return db.query(models.User).all()
+
+@app.get('/user/me', response_model=schemas.UserOut)
+async def get_my_user(
+    current_user = Depends(get_current_user),
+) -> schemas.UserOut:
+    return current_user
 
 @app.post('/user', response_model=schemas.UserOut)
 async def create_user(
@@ -81,7 +87,7 @@ async def create_activity(
     db.refresh(db_activity)
     return db_activity
 
-@app.post("/token")
+@app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
