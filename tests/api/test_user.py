@@ -35,3 +35,8 @@ def test_get_user_me_fails_unauthenticated():
     '''Fetching the current user should fail when unauthenticated.'''
     response = client.get(BASE_ROUTE + '/me')
     assert response.status_code == 401
+
+
+def test_post_user_succeeds(mock_db):
+    new_user = UserIn(name='Aragorn', email='strider@gondor.gov', password='anduril')
+    response = client.post(BASE_ROUTE, json=new_user)
