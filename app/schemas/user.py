@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class UserBase(BaseModel):
@@ -16,6 +16,7 @@ class UserOut(UserBase):
 
     class Config:
         orm_mode = True
+        extra = Extra.forbid
 
 
 class UserInDB(UserBase):

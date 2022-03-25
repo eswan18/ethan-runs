@@ -16,7 +16,7 @@ typecheck: $(SRC_FILES) $(TEST_FILES)
 	python -m mypy $(SRC_DIR) $(TEST_DIR)
 
 test: $(SRC_FILES) $(TEST_FILES)
-	pytest
+	python -m pytest
 
 serve: $(SRC_FILES)
 	uvicorn app.main:app --host 0.0.0.0

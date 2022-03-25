@@ -18,8 +18,6 @@ def test_get_all_users_succeeds_authenticated(authenticated_user):
     assert isinstance(raw_result, list)
     # Make sure these entities are valid as UserOuts with no additional data.
     _ = [UserOut.parse_obj(obj) for obj in raw_result]
-    expected_fields = set(UserOut.schema()['required'])
-    assert all(set(obj.keys()) == expected_fields for obj in raw_result)
 
 
 def test_get_all_users_fails_unauthenticated():
