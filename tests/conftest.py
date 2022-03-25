@@ -1,13 +1,25 @@
+import os
+from configparser import ConfigParser
 from uuid import uuid4
+
 import pytest
 
-from app.main import app
-from app.auth import get_current_user
-from app import models
+
+def pytest_configure(config):
+    '''Automatically set the app secret from the config file.'''
+    secrets = ConfigParser()
+    secrets.read('./secrets.ini')
+    app_secret = secrets['DEVELOPMENT']['APP_SECRET']
+    os.environ['APP_SECRET'] = app_secret
 
 
 @pytest.fixture(scope='function')
 def authenticated_user():
+    # Importing these within the function allows us to set the secrets before
+    # the code is run.
+    from app.main import app
+    from app.auth import get_current_user
+    from app import models
     mock_user = models.User(
         id=uuid4(),
         username='bbaggins',
