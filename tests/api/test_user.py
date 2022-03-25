@@ -9,7 +9,7 @@ client = TestClient(app)
 
 BASE_ROUTE = '/user'
 
-def test_get_all_users_success():
+def test_get_all_users_succeeds_authenticated(authenticated_user):
     '''Fetching users should return a list of users.'''
     response = client.get(BASE_ROUTE)
     assert response.status_code == 200
@@ -19,7 +19,11 @@ def test_get_all_users_success():
     # TODO: Eventually, should figure out how to make sure these entities are
     # valid as UserOuts.
 
-def test_get_user_me_succeeds(authenticated_user):
+def test_get_all_users_fails_unauthenticated():
+    response = client.get(BASE_ROUTE)
+    assert response.status_code == 401
+
+def test_get_user_me_succeeds_authenticated(authenticated_user):
     '''Fetching the current user should return a user.'''
     response = client.get(BASE_ROUTE + '/me')
     assert response.status_code == 200

@@ -31,13 +31,16 @@ app.add_middleware(
 
 
 @app.get('/user', response_model=list[UserOut])
-async def get_users(db: Session = Depends(get_db)) -> list[UserOut]:
+async def get_users(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> list[UserOut]:
     return db.query(models.User).all()
 
 
 @app.get('/user/me', response_model=UserOut)
 async def get_my_user(
-        current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     return current_user
 
