@@ -26,8 +26,10 @@ def authenticated_user():
         email='bilbo@theshire.net',
         pw_hash='1234'
     )
+
     async def mock_current_user(token=None, db=None):
         return mock_user
+
     app.dependency_overrides[get_current_user] = mock_current_user
     # Yielding the object gives tests access to it, for e.g. field comparison.
     yield mock_user
