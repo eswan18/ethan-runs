@@ -19,4 +19,5 @@ test: $(SRC_FILES) $(TEST_FILES)
 	python -m pytest
 
 serve: $(SRC_FILES)
-	uvicorn app.main:app --host 0.0.0.0
+	# Run on port 8000 if another isn't specified.
+	uvicorn app.main:app --host 0.0.0.0 --port ${PORT-8000}
