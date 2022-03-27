@@ -71,8 +71,9 @@ def authenticate_user(
     password: str,
     db: Session = Depends(get_db)
 ) -> models.User | None:
-    user = get_user(db, username)
-    if not user:
+    try:
+        user = get_user(db, username)
+    except ValueError:
         return None
     if not verify_pw(username, password, user.pw_hash):
         return None
