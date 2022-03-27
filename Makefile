@@ -3,6 +3,7 @@ SRC_FILES = $(shell find $(SRC_DIR) -type f -name '*.py')
 TEST_DIR = tests
 TEST_FILES = $(shell find $(TEST_DIR) -type f -name '*.py')
 SETUP_FILES = setup.cfg pyproject.toml
+PORT ?= 8000
 
 all: lint typecheck test
 
@@ -20,4 +21,4 @@ test: $(SRC_FILES) $(TEST_FILES)
 
 serve: $(SRC_FILES)
 	# Run on port 8000 if another isn't specified.
-	uvicorn app.main:app --host 0.0.0.0 --port ${PORT-8000}
+	uvicorn app.main:app --host 0.0.0.0 --port $(PORT)
