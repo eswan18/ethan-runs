@@ -14,8 +14,10 @@ from .schemas.token import Token
 from . import models
 
 ORIGINS = [
-    "http://localhost",
-    "http://localhost:8080",
+    'https://ethan-runs.herokuapp.com'
+    'http://localhost',
+    'http://localhost:8080',
+    'http://localhost:1337',
 ]
 
 models.Base.metadata.create_all(bind=engine)
