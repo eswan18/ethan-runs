@@ -20,6 +20,7 @@ def mock_db():
     '''Use a separate database for tests.'''
     from app.main import app
     from app.database import get_db, Base
+    from app import models
     SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -36,6 +37,10 @@ def mock_db():
     yield db
     # Reset the dependencies before moving on to other tests.
     del app.dependency_overrides[get_db]
+    # Clean up the database for next time.
+    db.query(models.User).delete()
+    db.query(models.Activity).delete()
+    db.commit()
 
 
 @pytest.fixture(scope='function')
