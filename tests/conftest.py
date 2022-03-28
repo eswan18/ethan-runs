@@ -17,13 +17,11 @@ def pytest_configure(config):
 
 @pytest.fixture(autouse=True, scope='session')
 def mock_db():
-    '''Use a sqlite database for tests.'''
-    # Inspired by https://fastapi.tiangolo.com/advanced/testing-database/
+    '''Use a separate database for tests.'''
+    from app.main import app
     from app.database import get_db, Base
-    SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-    )
+    SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
 
