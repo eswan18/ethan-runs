@@ -53,6 +53,24 @@ def mock_db(_mock_db_connection):
         _mock_db_connection.query(models.Activity).delete()
         _mock_db_connection.commit()
 
+@pytest.fixture(autouse=False, scope='function')
+def mock_db_with_users(mock_db):
+    from app import models
+    user1 = models.User(
+        username='elrond',
+        email='halfelf@rivendell.com',
+        pw_hash='1234'
+    )
+    user2 = models.User(
+        username='frodo',
+        email='frodo@thewest.com',
+        pw_hash='1234'
+    )
+    mock_db.add(user1)
+    mock_db.add(user2)
+    mock_db.commit()
+    return mock_db
+
 
 @pytest.fixture(scope='function')
 def authenticated_user():
