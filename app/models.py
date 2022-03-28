@@ -9,11 +9,7 @@ from .database import Base
 class Activity(Base):
     __tablename__ = 'activity_fact'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        server_default=text("nextval('activity_fact_id_seq'::regclass)"),
-    )
+    id = Column(Integer, primary_key=True)
     date_submitted = Column(Date)
     workout_date = Column(Date)
     avg_speed_in_mi_per_h = Column(Float)
