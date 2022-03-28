@@ -47,7 +47,7 @@ async def get_my_user(
     return current_user
 
 
-@app.post('/user', response_model=UserOut)
+@app.post('/user', status_code=status.HTTP_201_CREATED, response_model=UserOut)
 async def create_user(
     user: UserIn,
     db: Session = Depends(get_db)
@@ -107,7 +107,7 @@ async def get_activities(
     return activities.all()
 
 
-@app.post('/activity')
+@app.post('/activity', status_code=status.HTTP_201_CREATED)
 async def create_activity(
     activity: ActivityIn,
     token: str = Depends(oauth2_scheme),

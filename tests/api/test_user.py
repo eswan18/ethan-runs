@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.schemas.user import UserOut
+from app.schemas.user import UserIn, UserOut
 
 
 client = TestClient(app)
@@ -38,5 +38,8 @@ def test_get_user_me_fails_unauthenticated():
 
 
 def test_post_user_succeeds(mock_db):
-    new_user = UserIn(name='Aragorn', email='strider@gondor.gov', password='anduril')
-    response = client.post(BASE_ROUTE, json=new_user)
+    username, email, pw = 'Aragorn', 'strider@gondor.gov', 'anduril'
+    new_user = UserIn(username=username, email=email, password=pw)
+    response = client.post(BASE_ROUTE, data=new_user.json())
+    assert response.status_code == 201
+    assert response.json() == {'username': username, 'email': email}
