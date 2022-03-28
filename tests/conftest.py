@@ -16,8 +16,8 @@ def pytest_configure(config):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def mock_db():
-    '''Use a separate database for tests.'''
+def _mock_db_connection():
+    '''An isolated database for tests.'''
     from app.main import app
     from app.database import get_db, Base
     from app import models
@@ -41,6 +41,17 @@ def mock_db():
     db.query(models.User).delete()
     db.query(models.Activity).delete()
     db.commit()
+
+@pytest.fixture(autouse=False, scope='function')
+def mock_db(_mock_db_connection):
+    '''A self-cleaning version of the database for each test.'''
+    from app import models
+    try:
+        yield _mock_db_connection
+    finally:
+        _mock_db_connection.query(models.User).delete()
+        _mock_db_connection.query(models.Activity).delete()
+        _mock_db_connection.commit()
 
 
 @pytest.fixture(scope='function')
