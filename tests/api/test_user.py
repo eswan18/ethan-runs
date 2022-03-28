@@ -1,7 +1,9 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.schemas.user import UserIn, UserOut
+from app.models import User
 
 
 client = TestClient(app)
@@ -43,3 +45,18 @@ def test_post_user_succeeds(mock_db):
     response = client.post(BASE_ROUTE, data=new_user.json())
     assert response.status_code == 201
     assert response.json() == {'username': username, 'email': email}
+
+@pytest.mark.parametrize('collision_field', ['username', 'email'])
+def test_post_user_fails_on_repeat_user_or_email(mock_db_with_users, collision_field):
+    # Find a user record in the db.
+    user = mock_db_with_users.query(User).first()
+    # Create a "new" user that has a conflict with a user already in the db.
+    fresh_user = {
+        'username': 'Aragorn',
+        'email': 'strider@gondor.gov',
+        'password':'anduril'
+    }
+    conflicting_user = fresh_user | {collision_field: getattr(user, collision_field)}
+    new_user = UserIn(**conflicting_user)
+    response = client.post(BASE_ROUTE, data=new_user.json())
+    assert response.status_code == 409
