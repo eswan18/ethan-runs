@@ -1,0 +1,31 @@
+activities:
+  - date_submitted: 2022-01-01
+    workout_date: 2022-01-01
+    avg_speed_in_mi_per_h: 9.3
+    max_speed_in_mi_per_h: 11.0
+    avg_heart_rate: 157
+    steps: 8343
+    calories_burned_in_kcal: 894
+    distance_in_mi: 5.3
+    workout_time_in_seconds: 2664
+    avg_pace_in_min_per_mi: 6.3
+    max_pace_in_min_per_mi: 5.1
+    activity_type: Run
+    notes: "Wore shoes"
+    source: "this yaml file"
+    link: "https://website"
+  - date_submitted: 2022-01-06
+    workout_date: 2022-01-06
+    avg_speed_in_mi_per_h: 8.4
+    max_speed_in_mi_per_h: 10.3
+    avg_heart_rate: 157
+    steps: 8343
+    calories_burned_in_kcal: 894
+    distance_in_mi: 5.3
+    workout_time_in_seconds: 3003
+    avg_pace_in_min_per_mi: 6.3
+    max_pace_in_min_per_mi: 5.1
+    activity_type: Treadmill Run
+    notes: "Wore even more shoes"
+    source: "this yaml file"
+    link: "https://website"

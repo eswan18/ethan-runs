@@ -1,8 +1,15 @@
 from uuid import uuid4
+from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pytest
+import yaml
+
+
+MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
+with open(MOCK_DATA_FILE, 'rt') as f:
+    MOCK_DATA = yaml.load(f, Loader=yaml.SafeLoader)
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -60,6 +67,16 @@ def mock_db_with_users(mock_db):
     )
     mock_db.add(user1)
     mock_db.add(user2)
+    mock_db.commit()
+    return mock_db
+
+
+@pytest.fixture(autouse=False, scope='function')
+def mock_db_with_activities(mock_db):
+    from app import models
+    activities = [models.Activity(**activity) for activity in MOCK_DATA['activities']]
+    for activity in activities:
+        mock_db.add(activity)
     mock_db.commit()
     return mock_db
 

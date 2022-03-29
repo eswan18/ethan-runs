@@ -16,7 +16,7 @@ def test_get_all_users_succeeds_authenticated(authenticated_user):
     response = client.get(BASE_ROUTE)
     assert response.status_code == 200
     raw_result = response.json()
-    # We should have received a list of users
+    # We should have received a list of users.
     assert isinstance(raw_result, list)
     # Make sure these entities are valid as UserOuts with no additional data.
     _ = [UserOut.parse_obj(obj) for obj in raw_result]
