@@ -13,7 +13,7 @@ from app.auth import get_current_user
 
 
 # A type alias for the mock data.
-MockData = dict[str, dict[str, Any]]
+MockData = dict[str, list[dict[str, Any]]]
 
 
 SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
