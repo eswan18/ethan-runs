@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from .database import engine, get_db
-from .auth import get_current_user, authenticate_user, oauth2_scheme
+from .auth import get_current_user, authenticate_user
 from .auth import hash_pw, create_token_payload
 from .schemas.activity import ActivityIn, ActivityOut
 from .schemas.user import UserIn, UserOut
@@ -92,7 +92,6 @@ async def get_activities(
     start_date: date | None = None,
     end_date: date | None = None,
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme),
     current_user: models.User = Depends(get_current_user),
 ) -> list[ActivityOut]:
     activities = db.query(models.Activity)
@@ -110,7 +109,6 @@ async def get_activities(
 @app.post('/activity', status_code=status.HTTP_201_CREATED)
 async def create_activity(
     activity: ActivityIn,
-    token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
