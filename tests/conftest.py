@@ -1,4 +1,3 @@
-from uuid import uuid4
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -7,9 +6,12 @@ import pytest
 import yaml
 
 from app.main import app
+from app.database import get_db, Base
 from app.models import User, Activity
+from app.auth import get_current_user
 
 
+SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
 MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
 with open(MOCK_DATA_FILE, 'rt') as f:
     MOCK_DATA = yaml.load(f, Loader=yaml.SafeLoader)
@@ -17,9 +19,12 @@ with open(MOCK_DATA_FILE, 'rt') as f:
 
 @pytest.fixture(autouse=True, scope='session')
 def _mock_db_connection():
-    '''An isolated database for tests.'''
-    from app.database import get_db, Base
-    SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
+    '''
+    An isolated database for tests.
+
+    Not intended for direct use in tests as it doesn't clean up until all tests have
+    finished. See the fixture `mock_db` instead for that use case.
+    '''
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -74,8 +79,7 @@ def mock_db_with_activities(mock_db):
 def authenticated_user():
     # Importing these within the function allows us to set the secrets before
     # the code is run.
-    from app.auth import get_current_user
-    
+
     mock_user = User(**MOCK_DATA['users'][0])
 
     async def mock_current_user(token=None, db=None):
