@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import Any, Iterator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 import pytest
 import yaml
 
@@ -9,6 +10,10 @@ from app.main import app
 from app.database import get_db, Base
 from app.models import User, Activity
 from app.auth import get_current_user
+
+
+# A type alias for the mock data.
+MockData = dict[str, dict[str, Any]]
 
 
 SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
@@ -23,7 +28,7 @@ def mock_data():
 
 
 @pytest.fixture(autouse=True, scope='session')
-def _mock_db_connection():
+def _mock_db_connection() -> Iterator[Session]:
     '''
     An isolated database for tests.
 
@@ -52,7 +57,7 @@ def _mock_db_connection():
 
 
 @pytest.fixture(autouse=False, scope='function')
-def mock_db(_mock_db_connection):
+def mock_db(_mock_db_connection: Session) -> Iterator[Session]:
     '''A self-cleaning version of the database for each test.'''
     try:
         yield _mock_db_connection
@@ -63,7 +68,7 @@ def mock_db(_mock_db_connection):
 
 
 @pytest.fixture(autouse=False, scope='function')
-def mock_db_with_users(mock_db, mock_data):
+def mock_db_with_users(mock_db: Session, mock_data) -> Session:
     users = (User(**user) for user in mock_data['users'])
     for user in users:
         mock_db.add(user)
@@ -72,7 +77,7 @@ def mock_db_with_users(mock_db, mock_data):
 
 
 @pytest.fixture(autouse=False, scope='function')
-def mock_db_with_activities(mock_db, mock_data):
+def mock_db_with_activities(mock_db: Session, mock_data) -> Session:
     activities = (Activity(**activity) for activity in mock_data['activities'])
     for activity in activities:
         mock_db.add(activity)
@@ -81,10 +86,7 @@ def mock_db_with_activities(mock_db, mock_data):
 
 
 @pytest.fixture(scope='function')
-def authenticated_user(mock_data):
-    # Importing these within the function allows us to set the secrets before
-    # the code is run.
-
+def authenticated_user(mock_data) -> Iterator[User]:
     mock_user = User(**mock_data['users'][0])
 
     async def mock_current_user(token=None, db=None):
