@@ -46,6 +46,7 @@ def test_post_user_succeeds(mock_db):
     assert response.status_code == 201
     assert response.json() == {'username': username, 'email': email}
 
+
 @pytest.mark.parametrize('collision_field', ['username', 'email'])
 def test_post_user_fails_on_repeat_user_or_email(mock_db_with_users, collision_field):
     # Find a user record in the db.
@@ -54,7 +55,7 @@ def test_post_user_fails_on_repeat_user_or_email(mock_db_with_users, collision_f
     fresh_user = {
         'username': 'Aragorn',
         'email': 'strider@gondor.gov',
-        'password':'anduril'
+        'password': 'anduril',
     }
     conflicting_user = fresh_user | {collision_field: getattr(user, collision_field)}
     new_user = UserIn(**conflicting_user)

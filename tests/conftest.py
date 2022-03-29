@@ -15,8 +15,8 @@ def _mock_db_connection():
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
-
     db = TestingSessionLocal()
+
     def override_get_db():
         try:
             yield db
@@ -32,6 +32,7 @@ def _mock_db_connection():
     db.query(models.Activity).delete()
     db.commit()
 
+
 @pytest.fixture(autouse=False, scope='function')
 def mock_db(_mock_db_connection):
     '''A self-cleaning version of the database for each test.'''
@@ -42,6 +43,7 @@ def mock_db(_mock_db_connection):
         _mock_db_connection.query(models.User).delete()
         _mock_db_connection.query(models.Activity).delete()
         _mock_db_connection.commit()
+
 
 @pytest.fixture(autouse=False, scope='function')
 def mock_db_with_users(mock_db):
