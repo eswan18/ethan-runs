@@ -1,3 +1,13 @@
+users:
+  - username: elrond
+    email: halfelf@rivendell.com
+    pw_hash: '1234'
+  - username: frodo
+    email: frodo@thewest.com
+    pw_hash: '1235'
+  - username: bbaggins
+    email: bilbo@theshire.net
+    pw_hash: '1236'
 activities:
   - date_submitted: 2022-01-01
     workout_date: 2022-01-01

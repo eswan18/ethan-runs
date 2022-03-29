@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker
 import pytest
 import yaml
 
+from app.main import app
+from app.models import User, Activity
+
 
 MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
 with open(MOCK_DATA_FILE, 'rt') as f:
@@ -15,9 +18,7 @@ with open(MOCK_DATA_FILE, 'rt') as f:
 @pytest.fixture(autouse=True, scope='session')
 def _mock_db_connection():
     '''An isolated database for tests.'''
-    from app.main import app
     from app.database import get_db, Base
-    from app import models
     SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -35,46 +36,34 @@ def _mock_db_connection():
     # Reset the dependencies before moving on to other tests.
     del app.dependency_overrides[get_db]
     # Clean up the database for next time.
-    db.query(models.User).delete()
-    db.query(models.Activity).delete()
+    db.query(User).delete()
+    db.query(Activity).delete()
     db.commit()
 
 
 @pytest.fixture(autouse=False, scope='function')
 def mock_db(_mock_db_connection):
     '''A self-cleaning version of the database for each test.'''
-    from app import models
     try:
         yield _mock_db_connection
     finally:
-        _mock_db_connection.query(models.User).delete()
-        _mock_db_connection.query(models.Activity).delete()
+        _mock_db_connection.query(User).delete()
+        _mock_db_connection.query(Activity).delete()
         _mock_db_connection.commit()
 
 
 @pytest.fixture(autouse=False, scope='function')
 def mock_db_with_users(mock_db):
-    from app import models
-    user1 = models.User(
-        username='elrond',
-        email='halfelf@rivendell.com',
-        pw_hash='1234'
-    )
-    user2 = models.User(
-        username='frodo',
-        email='frodo@thewest.com',
-        pw_hash='1234'
-    )
-    mock_db.add(user1)
-    mock_db.add(user2)
+    users = (User(**user) for user in MOCK_DATA['users'])
+    for user in users:
+        mock_db.add(user)
     mock_db.commit()
     return mock_db
 
 
 @pytest.fixture(autouse=False, scope='function')
 def mock_db_with_activities(mock_db):
-    from app import models
-    activities = [models.Activity(**activity) for activity in MOCK_DATA['activities']]
+    activities = (Activity(**activity) for activity in MOCK_DATA['activities'])
     for activity in activities:
         mock_db.add(activity)
     mock_db.commit()
@@ -85,15 +74,9 @@ def mock_db_with_activities(mock_db):
 def authenticated_user():
     # Importing these within the function allows us to set the secrets before
     # the code is run.
-    from app.main import app
     from app.auth import get_current_user
-    from app import models
-    mock_user = models.User(
-        id=uuid4(),
-        username='bbaggins',
-        email='bilbo@theshire.net',
-        pw_hash='1234'
-    )
+    
+    mock_user = User(**MOCK_DATA['users'][0])
 
     async def mock_current_user(token=None, db=None):
         return mock_user
