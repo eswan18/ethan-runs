@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 from app.main import app
 from app.schemas.user import UserIn, UserOut
@@ -11,7 +12,7 @@ client = TestClient(app)
 BASE_ROUTE = '/user'
 
 
-def test_get_all_users_succeeds_authenticated(authenticated_user):
+def test_get_all_users_succeeds_authenticated(authenticated_user: User):
     '''Fetching users should return a list of users.'''
     response = client.get(BASE_ROUTE)
     assert response.status_code == 200
@@ -22,25 +23,25 @@ def test_get_all_users_succeeds_authenticated(authenticated_user):
     _ = [UserOut.parse_obj(obj) for obj in raw_result]
 
 
-def test_get_all_users_fails_unauthenticated():
+def test_get_all_users_fails_unauthenticated() -> None:
     response = client.get(BASE_ROUTE)
     assert response.status_code == 401
 
 
-def test_get_user_me_succeeds_authenticated(authenticated_user):
+def test_get_user_me_succeeds_authenticated(authenticated_user: User):
     '''Fetching the current user should return a user.'''
     response = client.get(BASE_ROUTE + '/me')
     assert response.status_code == 200
     assert authenticated_user.username == response.json()['username']
 
 
-def test_get_user_me_fails_unauthenticated():
+def test_get_user_me_fails_unauthenticated() -> None:
     '''Fetching the current user should fail when unauthenticated.'''
     response = client.get(BASE_ROUTE + '/me')
     assert response.status_code == 401
 
 
-def test_post_user_succeeds(mock_db):
+def test_post_user_succeeds(mock_db: Session):
     username, email, pw = 'Aragorn', 'strider@gondor.gov', 'anduril'
     new_user = UserIn(username=username, email=email, password=pw)
     response = client.post(BASE_ROUTE, data=new_user.json())
@@ -49,7 +50,10 @@ def test_post_user_succeeds(mock_db):
 
 
 @pytest.mark.parametrize('collision_field', ['username', 'email'])
-def test_post_user_fails_on_repeat_user_or_email(mock_db_with_users, collision_field):
+def test_post_user_fails_on_repeat_user_or_email(
+    mock_db_with_users: Session,
+    collision_field: str,
+):
     # Find a user record in the db.
     user = mock_db_with_users.query(User).first()
     # Create a "new" user that has a conflict with a user already in the db.

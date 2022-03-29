@@ -23,7 +23,7 @@ def test_activity_count_succeeds(mock_db_with_activities: Session):
     assert response.json() == n_activities
 
 
-def test_get_activity_fails_unauthenticated():
+def test_get_activity_fails_unauthenticated() -> None:
     response = client.get(BASE_ROUTE)
     assert response.status_code == 401
 
@@ -34,7 +34,11 @@ def test_post_activity_fails_unauthenticated(mock_data: MockData):
     assert response.status_code == 401
 
 
-def test_post_activity_succeeds(authenticated_user: User, mock_db: Session, mock_data: MockData):
+def test_post_activity_succeeds(
+    authenticated_user: User,
+    mock_db: Session,
+    mock_data: MockData,
+):
     n_activities_before = mock_db.query(Activity).count()
     new_activity = ActivityIn(**mock_data['activities'][0])
     response = client.post(BASE_ROUTE, data=new_activity.json())
