@@ -31,6 +31,7 @@ def test_get_user_me_succeeds_authenticated(authenticated_user):
     '''Fetching the current user should return a user.'''
     response = client.get(BASE_ROUTE + '/me')
     assert response.status_code == 200
+    assert authenticated_user.username == response.json()['username']
 
 
 def test_get_user_me_fails_unauthenticated():
