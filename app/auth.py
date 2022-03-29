@@ -1,5 +1,7 @@
 import os
+from configparser import ConfigParser
 from datetime import timedelta, datetime
+from pathlib import Path
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -10,7 +12,15 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from . import models
 
-SECRET_KEY = os.environ['APP_SECRET']
+if 'APP_SECRET' in os.environ:
+    SECRET_KEY = os.environ['APP_SECRET']
+elif Path('./secrets.ini').exists():
+    parser = ConfigParser()
+    parser.read('./secrets.ini')
+    SECRET_KEY = parser['DEVELOPMENT']['APP_SECRET']
+else:
+    raise RuntimeError('No app secret key found')
+
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRATION_MINUTES = 30
 

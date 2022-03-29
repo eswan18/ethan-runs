@@ -1,18 +1,8 @@
-import os
-from configparser import ConfigParser
 from uuid import uuid4
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pytest
-
-
-def pytest_configure(config):
-    '''Automatically set the app secret from the config file.'''
-    secrets = ConfigParser()
-    secrets.read('./secrets.ini')
-    app_secret = secrets['DEVELOPMENT']['APP_SECRET']
-    os.environ['APP_SECRET'] = app_secret
 
 
 @pytest.fixture(autouse=True, scope='session')
