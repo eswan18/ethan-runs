@@ -33,6 +33,8 @@ def test_post_activity_succeeds(authenticated_user, mock_db, mock_data):
     new_activity = ActivityIn(**mock_data['activities'][0])
     response = client.post(BASE_ROUTE, data=new_activity.json())
     assert response.status_code == 201
-    activity = ActivityOut(**response.json())
+    # Make sure the response is a valid activity.
+    _ = ActivityOut(**response.json())
+    # And that there is an additional record in the db.
     n_activities_after = mock_db.query(Activity).count()
     assert n_activities_after == n_activities_before + 1
