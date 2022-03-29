@@ -52,14 +52,14 @@ async def create_user(
     user: UserIn,
     db: Session = Depends(get_db)
 ) -> models.User:
-    same_name_user = db.query(models.User).filter(models.User.username==user.username)
+    same_name_user = db.query(models.User).filter(models.User.username == user.username)
     user_exists = db.query(same_name_user.exists()).scalar()
     if user_exists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already already in use",
         )
-    same_email_user = db.query(models.User).filter(models.User.email==user.email)
+    same_email_user = db.query(models.User).filter(models.User.email == user.email)
     email_exists = db.query(same_email_user.exists()).scalar()
     if email_exists:
         raise HTTPException(
