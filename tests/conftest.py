@@ -13,8 +13,13 @@ from app.auth import get_current_user
 
 SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
 MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
-with open(MOCK_DATA_FILE, 'rt') as f:
-    MOCK_DATA = yaml.load(f, Loader=yaml.SafeLoader)
+
+
+@pytest.fixture(scope='session')
+def mock_data():
+    with open(MOCK_DATA_FILE, 'rt') as f:
+        data = yaml.load(f, Loader=yaml.SafeLoader)
+    return data
 
 
 @pytest.fixture(autouse=True, scope='session')
@@ -58,8 +63,8 @@ def mock_db(_mock_db_connection):
 
 
 @pytest.fixture(autouse=False, scope='function')
-def mock_db_with_users(mock_db):
-    users = (User(**user) for user in MOCK_DATA['users'])
+def mock_db_with_users(mock_db, mock_data):
+    users = (User(**user) for user in mock_data['users'])
     for user in users:
         mock_db.add(user)
     mock_db.commit()
@@ -67,8 +72,8 @@ def mock_db_with_users(mock_db):
 
 
 @pytest.fixture(autouse=False, scope='function')
-def mock_db_with_activities(mock_db):
-    activities = (Activity(**activity) for activity in MOCK_DATA['activities'])
+def mock_db_with_activities(mock_db, mock_data):
+    activities = (Activity(**activity) for activity in mock_data['activities'])
     for activity in activities:
         mock_db.add(activity)
     mock_db.commit()
@@ -76,11 +81,11 @@ def mock_db_with_activities(mock_db):
 
 
 @pytest.fixture(scope='function')
-def authenticated_user():
+def authenticated_user(mock_data):
     # Importing these within the function allows us to set the secrets before
     # the code is run.
 
-    mock_user = User(**MOCK_DATA['users'][0])
+    mock_user = User(**mock_data['users'][0])
 
     async def mock_current_user(token=None, db=None):
         return mock_user
