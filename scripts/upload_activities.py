@@ -3,6 +3,7 @@ import csv
 import re
 from datetime import datetime
 import json
+import getpass
 
 import requests
 
@@ -25,6 +26,21 @@ def parse_date(d: str) -> datetime.date:
     date = datetime.strptime(d, '%b %d, %Y').date()
     return date
 
+def get_auth_token(url) -> str:
+    '''Get an auth token from the service via interactive login.'''
+    username = input('Username: ')
+    password = getpass.getpass()
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = f'grant_type=password&username={username}&password={password}&client_id=&client_secret='
+    response = requests.post(f'{url}/token', data=data, headers=headers)
+    response.raise_for_status()
+    if response.status_code != 200:
+        raise ValueError(response.json())
+    else:
+        return response.json()['access_token']
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
@@ -32,6 +48,11 @@ if __name__ == '__main__':
         print('usage: python upload_activities [file] [url]', file=sys.stderr)
         sys.exit(1)
     filepath, url = sys.argv[1], sys.argv[2]
+    token = get_auth_token(url)
+    http_headers = {
+        'accept': 'application/json',
+        'Authorization': f'Bearer {token}',
+    }
 
     with open(filepath, 'rt', newline='') as f:
         reader = csv.reader(f)
@@ -50,7 +71,7 @@ if __name__ == '__main__':
     headers = [normalize(h) for h in headers]
 
     # Create activities using this data and post them.
-    for row in rows:
+    for i, row in enumerate(rows):
         row_dict = dict(zip(headers, row))
         # Date values must be fixed.
         for key in ('date_submitted', 'workout_date'):
@@ -62,5 +83,12 @@ if __name__ == '__main__':
                 row_dict[key] = None
         j_str = json.dumps(row_dict)
         activity = ActivityIn.parse_raw(j_str)
-        response = requests.post(f'{url}/activity', data=activity.json())
-        print(response.status_code)
+        response = requests.post(
+            f'{url}/activity',
+            data=activity.json(),
+            headers=http_headers
+        )
+        response.raise_for_status()
+
+        if ((i+1) % 10) == 0:
+            print(f'Successfully inserted ten records. Total: {i+1}')
