@@ -49,5 +49,7 @@ jobs:
         run:
           pip install -e .[dev]
       - name: Run test
+        env:
+          APP_SECRET: ${{ secrets.APP_SECRET }}
         run:
           make test
