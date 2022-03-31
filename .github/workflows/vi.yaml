@@ -38,6 +38,22 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    container: python:3.10-buster
+    services:
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ethan_runs
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -51,5 +67,6 @@ jobs:
       - name: Run test
         env:
           APP_SECRET: ${{ secrets.APP_SECRET }}
+          DATABASE_URL: postgresql://postgres:postgres@localhost/ethan_runs
         run:
           make test
