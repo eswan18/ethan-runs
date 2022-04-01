@@ -66,6 +66,6 @@ jobs:
       - name: Run test
         env:
           APP_SECRET: ${{ secrets.APP_SECRET }}
-          DATABASE_URL: postgresql://postgres:postgres@localhost/ethan_runs
+          DATABASE_URL: "postgresql://postgres:postgres@localhost/ethan_runs"
         run:
           make test
