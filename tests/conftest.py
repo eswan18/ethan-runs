@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -16,7 +17,11 @@ from app.auth import get_current_user
 MockData = dict[str, list[dict[str, Any]]]
 
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
+# In CI environments, the db url will be in the environment.
+if 'TEST_DATABASE_URL' in os.environ:
+    TEST_DATABASE_URL  = os.environ['TEST_DATABASE_URL']
+else:
+    TEST_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
 MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
 
 
@@ -35,7 +40,7 @@ def _mock_db_connection() -> Iterator[Session]:
     Not intended for direct use in tests as it doesn't clean up until all tests have
     finished. See the fixture `mock_db` instead for that use case.
     '''
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(TEST_DATABASE_URL)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
