@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from .database import engine, get_db
+from .database import get_engine, get_db
 from .auth import get_current_user, authenticate_user
 from .auth import hash_pw, create_token_payload
 from .schemas.activity import ActivityIn, ActivityOut
@@ -20,7 +20,7 @@ ORIGINS = [
     'http://localhost:1337',
 ]
 
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=get_engine())
 
 app = FastAPI()
 app.add_middleware(
