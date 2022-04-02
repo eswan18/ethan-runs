@@ -19,7 +19,7 @@ MockData = dict[str, list[dict[str, Any]]]
 
 # In CI environments, the db url will be in the environment.
 if 'TEST_DATABASE_URL' in os.environ:
-    TEST_DATABASE_URL  = os.environ['TEST_DATABASE_URL']
+    TEST_DATABASE_URL = os.environ['TEST_DATABASE_URL']
 else:
     TEST_DATABASE_URL = 'postgresql://eswan18@localhost/ethan_runs_test'
 MOCK_DATA_FILE = Path(__file__).parent / 'data' / 'mock_data.yaml'
